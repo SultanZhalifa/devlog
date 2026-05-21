@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  githubId  String   @unique
+  username  String   @unique
+  name      String
+  avatar    String
+  bio       String?
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  entries   Entry[]
+  following Follow[] @relation("follower")
+  followers Follow[] @relation("following")
+
+  @@index([username])
+}
+
+model Entry {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  date      DateTime   @default(now()) @db.Date
+  mood      Int?
+  isPublic  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  tags      EntryTag[]
+
+  @@index([userId, date])
+  @@index([userId, createdAt])
+}
+
+model Tag {
+  id      String     @id @default(cuid())
+  name    String     @unique
+  entries EntryTag[]
+
+  @@index([name])
+}
+
+model EntryTag {
+  entryId String
+  tagId   String
+  entry   Entry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, tagId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+}
+
