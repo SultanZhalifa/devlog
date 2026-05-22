@@ -87,7 +87,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           (entries as EntryRow[]).map((entry) => (
-            <EntryCard key={entry.id} entry={entry as EntryWithTags} />
+            <EntryCard key={entry.id} entry={entry as EntryWithTags} isOwner />
           ))
         )}
       </div>

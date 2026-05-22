@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import Image from "next/image";
 import { EntryCard } from "@/components/EntryCard";
 import { TagBadge } from "@/components/TagBadge";
+import { FollowButton } from "@/components/FollowButton";
 import { calculateStreak } from "@/lib/utils";
 import { FiZap } from "react-icons/fi";
 import type { Metadata } from "next";
@@ -25,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicProfilePage({ params }: Props) {
   const { username } = await params;
+  const session = await auth();
 
   const user = await db.user.findUnique({
     where: { username },
@@ -34,6 +37,22 @@ export default async function PublicProfilePage({ params }: Props) {
   });
 
   if (!user || !user.isPublic) notFound();
+
+  const isOwnProfile = session?.user?.id === user.id;
+  const isLoggedIn = !!session?.user?.id;
+
+  let isFollowing = false;
+  if (isLoggedIn && !isOwnProfile) {
+    const follow = await db.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: session!.user!.id!,
+          followingId: user.id,
+        },
+      },
+    });
+    isFollowing = !!follow;
+  }
 
   const entries = await db.entry.findMany({
     where: { userId: user.id, isPublic: true },
@@ -67,9 +86,16 @@ export default async function PublicProfilePage({ params }: Props) {
           height={72}
           className="rounded-full"
         />
-        <div>
-          <h1 className="text-xl font-bold">{user.name}</h1>
-          <p className="text-sm text-zinc-500">@{user.username}</p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-bold">{user.name}</h1>
+              <p className="text-sm text-zinc-500">@{user.username}</p>
+            </div>
+            {isLoggedIn && !isOwnProfile && (
+              <FollowButton followingId={user.id} initialIsFollowing={isFollowing} />
+            )}
+          </div>
           {user.bio && (
             <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{user.bio}</p>
           )}
@@ -77,6 +103,10 @@ export default async function PublicProfilePage({ params }: Props) {
             <span>
               <strong>{user._count.entries}</strong>{" "}
               <span className="text-zinc-500">entries</span>
+            </span>
+            <span>
+              <strong>{user._count.followers}</strong>{" "}
+              <span className="text-zinc-500">followers</span>
             </span>
             <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
               <FiZap className="h-3.5 w-3.5" />
@@ -104,7 +134,7 @@ export default async function PublicProfilePage({ params }: Props) {
           </div>
         ) : (
           (entries as EntryRow[]).map((entry) => (
-            <EntryCard key={entry.id} entry={entry as EntryWithTags} />
+            <EntryCard key={entry.id} entry={entry as EntryWithTags} isOwner={isOwnProfile} />
           ))
         )}
       </div>
