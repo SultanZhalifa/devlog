@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { FiLock, FiGlobe, FiCalendar } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FiLock, FiGlobe, FiCalendar, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { TagBadge } from "@/components/TagBadge";
 import { formatDate } from "@/lib/utils";
 import type { EntryWithTags, Tag } from "@/types";
@@ -11,6 +13,7 @@ interface EntryCardProps {
   entry: EntryWithTags;
   showUser?: boolean;
   compact?: boolean;
+  showActions?: boolean;
 }
 
 const MOOD_EMOJI: Record<number, string> = {
@@ -21,10 +24,29 @@ const MOOD_EMOJI: Record<number, string> = {
   5: "🔥",
 };
 
-export function EntryCard({ entry, showUser = false, compact = false }: EntryCardProps) {
+export function EntryCard({
+  entry,
+  showUser = false,
+  compact = false,
+  showActions = false,
+}: EntryCardProps) {
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+
   const preview = compact
     ? entry.content.slice(0, 120) + (entry.content.length > 120 ? "…" : "")
     : entry.content.slice(0, 300) + (entry.content.length > 300 ? "…" : "");
+
+  async function handleDelete() {
+    if (!confirm("Delete this entry? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await fetch(`/api/entries/${entry.id}`, { method: "DELETE" });
+      router.refresh();
+    } catch {
+      setDeleting(false);
+    }
+  }
 
   return (
     <article className="group rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
@@ -76,6 +98,26 @@ export function EntryCard({ entry, showUser = false, compact = false }: EntryCar
           </div>
           {entry.mood !== null && entry.mood !== undefined && (
             <span className="text-base">{MOOD_EMOJI[entry.mood]}</span>
+          )}
+
+          {showActions && (
+            <div className="mt-2 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+              <Link
+                href={`/write?edit=${entry.id}`}
+                className="rounded p-1 text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+                title="Edit entry"
+              >
+                <FiEdit2 className="h-3.5 w-3.5" />
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="rounded p-1 text-zinc-400 hover:text-red-500 disabled:opacity-40"
+                title="Delete entry"
+              >
+                <FiTrash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
           )}
         </div>
       </div>

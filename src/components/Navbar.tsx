@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { auth, signOut } from "@/lib/auth";
-import { FiZap, FiLogOut, FiUser, FiPlusSquare, FiBarChart2, FiCompass } from "react-icons/fi";
+import { FiZap, FiLogOut, FiUser, FiPlusSquare, FiBarChart2, FiCompass, FiSettings } from "react-icons/fi";
 
 export async function Navbar() {
   const session = await auth();
@@ -60,6 +60,14 @@ export async function Navbar() {
                 <span className="hidden text-sm font-medium sm:block dark:text-zinc-200">
                   {user.name}
                 </span>
+              </Link>
+
+              <Link
+                href="/settings"
+                className="rounded p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                title="Settings"
+              >
+                <FiSettings className="h-4 w-4" />
               </Link>
 
               <form
