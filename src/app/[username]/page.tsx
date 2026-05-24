@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import Image from "next/image";
 import { EntryCard } from "@/components/EntryCard";
 import { TagBadge } from "@/components/TagBadge";
+import { FollowButton } from "@/components/FollowButton";
 import { calculateStreak } from "@/lib/utils";
 import { FiZap } from "react-icons/fi";
 import type { Metadata } from "next";
@@ -26,21 +28,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicProfilePage({ params }: Props) {
   const { username } = await params;
 
-  const user = await db.user.findUnique({
-    where: { username },
-    include: {
-      _count: { select: { entries: true, followers: true, following: true } },
-    },
-  });
+  const [session, user] = await Promise.all([
+    auth(),
+    db.user.findUnique({
+      where: { username },
+      include: {
+        _count: { select: { entries: true, followers: true, following: true } },
+      },
+    }),
+  ]);
 
   if (!user || !user.isPublic) notFound();
 
-  const entries = await db.entry.findMany({
-    where: { userId: user.id, isPublic: true },
-    include: { tags: { include: { tag: true } }, user: true },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  });
+  const isOwnProfile = session?.user?.id === user.id;
+  const isLoggedIn = !!session?.user?.id;
+
+  const [entries, isFollowing] = await Promise.all([
+    db.entry.findMany({
+      where: { userId: user.id, isPublic: true },
+      include: { tags: { include: { tag: true } }, user: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
+    isLoggedIn && !isOwnProfile
+      ? db.follow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: session!.user!.id!,
+              followingId: user.id,
+            },
+          },
+        })
+      : Promise.resolve(null),
+  ]);
 
   type EntryRow = (typeof entries)[number];
   const streak = calculateStreak(entries.map((e: EntryRow) => new Date(e.date)));
@@ -59,32 +79,46 @@ export default async function PublicProfilePage({ params }: Props) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       {/* Profile header */}
-      <div className="mb-8 flex items-start gap-4">
-        <Image
-          src={user.avatar}
-          alt={user.name}
-          width={72}
-          height={72}
-          className="rounded-full"
-        />
-        <div>
-          <h1 className="text-xl font-bold">{user.name}</h1>
-          <p className="text-sm text-zinc-500">@{user.username}</p>
-          {user.bio && (
-            <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{user.bio}</p>
-          )}
-          <div className="mt-3 flex gap-4 text-sm">
-            <span>
-              <strong>{user._count.entries}</strong>{" "}
-              <span className="text-zinc-500">entries</span>
-            </span>
-            <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
-              <FiZap className="h-3.5 w-3.5" />
-              <strong>{streak}</strong>{" "}
-              <span className="text-zinc-500">day streak</span>
-            </span>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <Image
+            src={user.avatar}
+            alt={user.name}
+            width={72}
+            height={72}
+            className="rounded-full"
+          />
+          <div>
+            <h1 className="text-xl font-bold">{user.name}</h1>
+            <p className="text-sm text-zinc-500">@{user.username}</p>
+            {user.bio && (
+              <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{user.bio}</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-4 text-sm">
+              <span>
+                <strong>{user._count.entries}</strong>{" "}
+                <span className="text-zinc-500">entries</span>
+              </span>
+              <span>
+                <strong>{user._count.followers}</strong>{" "}
+                <span className="text-zinc-500">followers</span>
+              </span>
+              <span>
+                <strong>{user._count.following}</strong>{" "}
+                <span className="text-zinc-500">following</span>
+              </span>
+              <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                <FiZap className="h-3.5 w-3.5" />
+                <strong>{streak}</strong>{" "}
+                <span className="text-zinc-500">day streak</span>
+              </span>
+            </div>
           </div>
         </div>
+
+        {isLoggedIn && !isOwnProfile && (
+          <FollowButton username={user.username} initialFollowing={!!isFollowing} />
+        )}
       </div>
 
       {/* Top tags */}
