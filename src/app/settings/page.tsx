@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { SettingsForm } from "./SettingsForm";
+import { PageHeader } from "@/components/ui/PageHeader";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -19,10 +20,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="mb-2 text-2xl font-bold">Settings</h1>
-      <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
-        Manage your profile and preferences.
-      </p>
+      <PageHeader
+        title="Settings"
+        subtitle="Manage your profile and preferences."
+      />
       <SettingsForm
         initialBio={user.bio ?? ""}
         initialIsPublic={user.isPublic}

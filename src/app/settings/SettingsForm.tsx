@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiSave, FiCheck } from "react-icons/fi";
+import { TextArea } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Toggle } from "@/components/ui/Toggle";
+import { Card } from "@/components/ui/Card";
+import { CONTENT } from "@/lib/constants";
 
 interface SettingsFormProps {
   initialBio: string;
@@ -41,70 +46,56 @@ export function SettingsForm({ initialBio, initialIsPublic, username }: Settings
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       {/* Bio */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium">Bio</label>
-        <textarea
+        <TextArea
+          label="Bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           placeholder="Tell the community what you're working on or learning…"
           rows={3}
-          maxLength={300}
-          className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm leading-relaxed placeholder-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+          maxLength={CONTENT.BIO_MAX_LENGTH}
         />
-        <p className="mt-1 text-right text-xs text-zinc-400">{bio.length}/300</p>
-      </div>
-
-      {/* Public profile */}
-      <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-        <label className="flex cursor-pointer items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium">Public profile</p>
-            <p className="mt-0.5 text-xs text-zinc-400">
-              Let others discover you and your entries on Explore
-            </p>
-          </div>
-          <div className="relative shrink-0">
-            <input
-              type="checkbox"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              className="peer sr-only"
-            />
-            <div className="h-5 w-9 rounded-full bg-zinc-200 peer-checked:bg-indigo-600 dark:bg-zinc-700" />
-            <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
-          </div>
-        </label>
-      </div>
-
-      {/* Profile link */}
-      <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-        <p className="text-sm font-medium">Your profile URL</p>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          devlog.vercel.app/{username}
+        <p className="mt-1 text-right text-xs text-stone-400">
+          {bio.length}/{CONTENT.BIO_MAX_LENGTH}
         </p>
       </div>
 
+      {/* Public profile */}
+      <Card padding="md">
+        <Toggle
+          checked={isPublic}
+          onChange={setIsPublic}
+          label="Public profile"
+          description="Let others discover you and your entries on Explore"
+        />
+      </Card>
+
+      {/* Profile link */}
+      <Card padding="md">
+        <p className="text-sm font-medium text-stone-700 dark:text-stone-300">Your profile URL</p>
+        <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+          {typeof window !== "undefined" ? window.location.host : ""}
+          /{username}
+        </p>
+      </Card>
+
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <button
+      <Button
         type="submit"
         disabled={saving}
-        className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
-      >
-        {saved ? (
-          <>
+        icon={
+          saved ? (
             <FiCheck className="h-4 w-4" />
-            Saved!
-          </>
-        ) : (
-          <>
+          ) : (
             <FiSave className="h-4 w-4" />
-            {saving ? "Saving…" : "Save changes"}
-          </>
-        )}
-      </button>
+          )
+        }
+      >
+        {saved ? "Saved!" : saving ? "Saving…" : "Save changes"}
+      </Button>
     </form>
   );
 }

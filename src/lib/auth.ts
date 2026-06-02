@@ -10,7 +10,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ account, profile }) {
       if (account?.provider !== "github" || !profile) return false;
 
       const githubProfile = profile as unknown as {
@@ -50,8 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         if (user) {
           session.user.id = user.id;
-          (session.user as typeof session.user & { username: string }).username =
-            user.username;
+          session.user.username = user.username;
         }
       }
       return session;

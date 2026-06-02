@@ -1,10 +1,13 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { EntryCard } from "@/components/EntryCard";
+import { EntryList } from "@/components/entries/EntryList";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { FiPlusSquare, FiBarChart2 } from "react-icons/fi";
-import { calculateStreak } from "@/lib/utils";
+import { calculateStreak } from "@/lib/utils/streak";
+import { LIMITS } from "@/lib/constants";
 import type { Metadata } from "next";
 import type { EntryWithTags } from "@/types";
 
@@ -19,7 +22,7 @@ export default async function DashboardPage() {
       where: { userId: session.user.id },
       include: { tags: { include: { tag: true } }, user: true },
       orderBy: { createdAt: "desc" },
-      take: 10,
+      take: LIMITS.DASHBOARD_ENTRIES,
     }),
     db.user.findUnique({
       where: { id: session.user.id },
@@ -27,78 +30,61 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  type EntryRow = (typeof entries)[number];
-  const streak = calculateStreak(entries.map((e: EntryRow) => new Date(e.date)));
+  const streak = calculateStreak(entries.map((e) => new Date(e.date)));
   const today = new Date().toDateString();
-  const hasEntryToday = (entries as EntryRow[]).some(
+  const hasEntryToday = entries.some(
     (e) => new Date(e.date).toDateString() === today,
   );
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">
-            Hey, {user?.name?.split(" ")[0] ?? "there"} 👋
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {user?._count.entries ?? 0} total entries · {streak} day streak
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/analytics"
-            className="flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
-          >
-            <FiBarChart2 className="h-4 w-4" />
-            Analytics
-          </Link>
-          <Link
-            href="/write"
-            className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-          >
-            <FiPlusSquare className="h-4 w-4" />
-            {hasEntryToday ? "Add another" : "Log today"}
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title={`Hey, ${user?.name?.split(" ")[0] ?? "there"} 👋`}
+        subtitle={`${user?._count.entries ?? 0} total entries · ${streak} day streak`}
+        actions={
+          <>
+            <Link href="/analytics">
+              <Button variant="secondary" size="sm" icon={<FiBarChart2 className="h-4 w-4" />}>
+                Analytics
+              </Button>
+            </Link>
+            <Link href="/write">
+              <Button variant="primary" size="sm" icon={<FiPlusSquare className="h-4 w-4" />}>
+                {hasEntryToday ? "Add another" : "Log today"}
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
       {!hasEntryToday && (
-        <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
-          <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+        <div className="animate-fade-in mb-6 rounded-2xl border border-amber-200/60 bg-amber-50/60 p-4 backdrop-blur-sm dark:border-amber-900/40 dark:bg-amber-950/30">
+          <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
             📝 You haven&apos;t logged anything today yet.
           </p>
-          <p className="mt-0.5 text-xs text-indigo-500 dark:text-indigo-400">
+          <p className="mt-0.5 text-xs text-amber-600/70 dark:text-amber-400/70">
             Keep your streak going — write about what you built or learned.
           </p>
         </div>
       )}
 
-      <div className="space-y-4">
-        {entries.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-            <p className="text-zinc-500 dark:text-zinc-400">No entries yet.</p>
-            <Link
-              href="/write"
-              className="mt-3 inline-block text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-            >
-              Write your first entry →
-            </Link>
-          </div>
-        ) : (
-          (entries as EntryRow[]).map((entry) => (
-            <EntryCard key={entry.id} entry={entry as EntryWithTags} showActions />
-          ))
-        )}
+      <div className="animate-fade-in">
+        <EntryList
+          entries={entries as EntryWithTags[]}
+          showActions
+          emptyMessage="No entries yet."
+          emptyActionLabel="Write your first entry"
+          emptyActionHref="/write"
+        />
       </div>
 
-      {entries.length >= 10 && (
+      {entries.length >= LIMITS.DASHBOARD_ENTRIES && (
         <div className="mt-6 text-center">
           <Link
             href="/analytics"
-            className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+            className="text-sm font-medium text-amber-600 transition-colors hover:text-amber-700 hover:underline dark:text-amber-400 dark:hover:text-amber-300"
           >
-            View all entries in analytics →
+            View your analytics →
           </Link>
         </div>
       )}

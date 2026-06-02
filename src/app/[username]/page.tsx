@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
-import Image from "next/image";
-import { EntryCard } from "@/components/EntryCard";
-import { TagBadge } from "@/components/TagBadge";
-import { FollowButton } from "@/components/FollowButton";
-import { calculateStreak } from "@/lib/utils";
+import { EntryList } from "@/components/entries/EntryList";
+import { TagBadge } from "@/components/tags/TagBadge";
+import { FollowButton } from "@/components/social/FollowButton";
+import { UserAvatar } from "@/components/social/UserAvatar";
+import { calculateStreak } from "@/lib/utils/streak";
+import { calculateTopTags } from "@/lib/utils/analytics";
+import { LIMITS } from "@/lib/constants";
 import { FiZap } from "react-icons/fi";
 import type { Metadata } from "next";
 import type { EntryWithTags } from "@/types";
@@ -43,12 +45,16 @@ export default async function PublicProfilePage({ params }: Props) {
   const isOwnProfile = session?.user?.id === user.id;
   const isLoggedIn = !!session?.user?.id;
 
-  const [entries, isFollowing] = await Promise.all([
+  const [entries, allEntryDates, isFollowing] = await Promise.all([
     db.entry.findMany({
       where: { userId: user.id, isPublic: true },
       include: { tags: { include: { tag: true } }, user: true },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: LIMITS.PROFILE_ENTRIES,
+    }),
+    db.entry.findMany({
+      where: { userId: user.id },
+      select: { date: true },
     }),
     isLoggedIn && !isOwnProfile
       ? db.follow.findUnique({
@@ -62,55 +68,42 @@ export default async function PublicProfilePage({ params }: Props) {
       : Promise.resolve(null),
   ]);
 
-  type EntryRow = (typeof entries)[number];
-  const streak = calculateStreak(entries.map((e: EntryRow) => new Date(e.date)));
-
-  const tagCounts: Record<string, number> = {};
-  for (const e of entries as EntryRow[]) {
-    for (const et of e.tags) {
-      const name = (et as { tag: { name: string } }).tag.name;
-      tagCounts[name] = (tagCounts[name] ?? 0) + 1;
-    }
-  }
-  const topTags = Object.entries(tagCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10);
+  const streak = calculateStreak(allEntryDates.map((e) => new Date(e.date)));
+  const topTags = calculateTopTags(entries, LIMITS.TOP_TAGS).map(({ name }) => name);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       {/* Profile header */}
-      <div className="mb-8 flex items-start justify-between gap-4">
+      <div className="animate-fade-in mb-8 flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <Image
+          <UserAvatar
             src={user.avatar}
-            alt={user.name}
-            width={72}
-            height={72}
-            className="rounded-full"
+            name={user.name}
+            size="lg"
           />
           <div>
-            <h1 className="text-xl font-bold">{user.name}</h1>
-            <p className="text-sm text-zinc-500">@{user.username}</p>
+            <h1 className="text-xl font-bold text-stone-900 dark:text-stone-50">{user.name}</h1>
+            <p className="text-sm text-stone-500 dark:text-stone-400">@{user.username}</p>
             {user.bio && (
-              <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">{user.bio}</p>
+              <p className="mt-1.5 text-sm text-stone-600 dark:text-stone-400">{user.bio}</p>
             )}
             <div className="mt-3 flex flex-wrap gap-4 text-sm">
               <span>
-                <strong>{user._count.entries}</strong>{" "}
-                <span className="text-zinc-500">entries</span>
+                <strong className="text-stone-800 dark:text-stone-200">{user._count.entries}</strong>{" "}
+                <span className="text-stone-500 dark:text-stone-400">entries</span>
               </span>
               <span>
-                <strong>{user._count.followers}</strong>{" "}
-                <span className="text-zinc-500">followers</span>
+                <strong className="text-stone-800 dark:text-stone-200">{user._count.followers}</strong>{" "}
+                <span className="text-stone-500 dark:text-stone-400">followers</span>
               </span>
               <span>
-                <strong>{user._count.following}</strong>{" "}
-                <span className="text-zinc-500">following</span>
+                <strong className="text-stone-800 dark:text-stone-200">{user._count.following}</strong>{" "}
+                <span className="text-stone-500 dark:text-stone-400">following</span>
               </span>
-              <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+              <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                 <FiZap className="h-3.5 w-3.5" />
                 <strong>{streak}</strong>{" "}
-                <span className="text-zinc-500">day streak</span>
+                <span className="text-stone-500 dark:text-stone-400">day streak</span>
               </span>
             </div>
           </div>
@@ -123,24 +116,19 @@ export default async function PublicProfilePage({ params }: Props) {
 
       {/* Top tags */}
       {topTags.length > 0 && (
-        <div className="mb-6 flex flex-wrap gap-1.5">
-          {topTags.map(([name]) => (
+        <div className="animate-fade-in mb-6 flex flex-wrap gap-1.5" style={{ animationDelay: "100ms" }}>
+          {topTags.map((name) => (
             <TagBadge key={name} name={name} />
           ))}
         </div>
       )}
 
       {/* Entries */}
-      <div className="space-y-4">
-        {entries.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-            <p className="text-zinc-400">No public entries yet.</p>
-          </div>
-        ) : (
-          (entries as EntryRow[]).map((entry) => (
-            <EntryCard key={entry.id} entry={entry as EntryWithTags} />
-          ))
-        )}
+      <div className="animate-fade-in" style={{ animationDelay: "150ms" }}>
+        <EntryList
+          entries={entries as EntryWithTags[]}
+          emptyMessage="No public entries yet."
+        />
       </div>
     </div>
   );

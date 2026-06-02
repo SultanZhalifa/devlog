@@ -2,29 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TagBadge } from "@/components/TagBadge";
+import { TagBadge } from "@/components/tags/TagBadge";
+import { Button } from "@/components/ui/Button";
+import { TextArea } from "@/components/ui/Input";
+import { Toggle } from "@/components/ui/Toggle";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SUGGESTED_TAGS, MOOD_OPTIONS, CONTENT } from "@/lib/constants";
 import { FiSend, FiX } from "react-icons/fi";
-
-const SUGGESTED_TAGS = [
-  "typescript",
-  "react",
-  "nextjs",
-  "python",
-  "css",
-  "sql",
-  "algorithms",
-  "system-design",
-  "devops",
-  "open-source",
-];
-
-const MOOD_OPTIONS = [
-  { value: 1, emoji: "😔", label: "Rough" },
-  { value: 2, emoji: "😐", label: "Okay" },
-  { value: 3, emoji: "😊", label: "Good" },
-  { value: 4, emoji: "😄", label: "Great" },
-  { value: 5, emoji: "🔥", label: "On fire" },
-];
 
 interface InitialData {
   id: string;
@@ -61,8 +45,8 @@ export function WriteForm({ initialData }: WriteFormProps) {
       .toLowerCase()
       .trim()
       .replace(/\s+/g, "-")
-      .slice(0, 30);
-    if (tag && !selectedTags.includes(tag) && selectedTags.length < 10) {
+      .slice(0, CONTENT.TAG_MAX_LENGTH);
+    if (tag && !selectedTags.includes(tag) && selectedTags.length < CONTENT.TAG_MAX_COUNT) {
       setSelectedTags((prev) => [...prev, tag]);
     }
     setCustomTag("");
@@ -95,25 +79,22 @@ export function WriteForm({ initialData }: WriteFormProps) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="mb-6 text-2xl font-bold">
-        {isEditing ? "Edit entry" : "What did you learn today?"}
-      </h1>
+      <PageHeader title={isEditing ? "Edit entry" : "What did you learn today?"} />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
         <div>
-          <textarea
+          <TextArea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="I learned how React Server Components work by building... I fixed a bug where... I built a feature that..."
             rows={10}
-            className="w-full rounded-xl border border-zinc-200 bg-white p-4 text-sm leading-relaxed placeholder-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
           />
-          <p className="mt-1 text-right text-xs text-zinc-400">{content.length} chars</p>
+          <p className="mt-1 text-right text-xs text-stone-400">{content.length} chars</p>
         </div>
 
         {/* Tags */}
         <div>
-          <p className="mb-2 text-sm font-medium">Tags</p>
+          <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">Tags</p>
           <div className="mb-3 flex flex-wrap gap-2">
             {SUGGESTED_TAGS.map((tag) => (
               <TagBadge
@@ -124,10 +105,10 @@ export function WriteForm({ initialData }: WriteFormProps) {
               />
             ))}
           </div>
-          {selectedTags.filter((t) => !SUGGESTED_TAGS.includes(t)).map((tag) => (
+          {selectedTags.filter((t) => !(SUGGESTED_TAGS as readonly string[]).includes(t)).map((tag) => (
             <span
               key={tag}
-              className="mr-2 mb-2 inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
+              className="mr-2 mb-2 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
             >
               #{tag}
               <button type="button" onClick={() => toggleTag(tag)}>
@@ -141,73 +122,65 @@ export function WriteForm({ initialData }: WriteFormProps) {
               onChange={(e) => setCustomTag(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomTag())}
               placeholder="Add custom tag…"
-              maxLength={30}
-              className="flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900"
+              maxLength={CONTENT.TAG_MAX_LENGTH}
+              className="flex-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200/50 dark:border-stone-700 dark:bg-stone-900 dark:focus:border-amber-500 dark:focus:ring-amber-800/30"
             />
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={addCustomTag}
-              disabled={selectedTags.length >= 10}
-              className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm hover:bg-zinc-50 disabled:opacity-40 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              disabled={selectedTags.length >= CONTENT.TAG_MAX_COUNT}
             >
               Add
-            </button>
+            </Button>
           </div>
-          {selectedTags.length >= 10 && (
-            <p className="mt-1 text-xs text-zinc-400">Maximum 10 tags</p>
+          {selectedTags.length >= CONTENT.TAG_MAX_COUNT && (
+            <p className="mt-1 text-xs text-stone-400">Maximum {CONTENT.TAG_MAX_COUNT} tags</p>
           )}
         </div>
 
         {/* Mood */}
         <div>
-          <p className="mb-2 text-sm font-medium">How did it feel?</p>
+          <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">How did it feel?</p>
           <div className="flex gap-2">
             {MOOD_OPTIONS.map((m) => (
               <button
                 key={m.value}
                 type="button"
                 onClick={() => setMood(mood === m.value ? null : m.value)}
-                className={`flex flex-col items-center rounded-xl border px-3 py-2 text-xs transition-colors ${
+                className={`flex flex-col items-center rounded-xl border px-3.5 py-2.5 text-xs transition-all duration-200 ${
                   mood === m.value
-                    ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950"
-                    : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-700"
+                    ? "border-amber-400 bg-amber-50 shadow-sm shadow-amber-100/50 dark:border-amber-600 dark:bg-amber-950/40 dark:shadow-amber-900/10"
+                    : "border-stone-200 hover:border-stone-300 hover:bg-stone-50 dark:border-stone-700 dark:hover:border-stone-600 dark:hover:bg-stone-800"
                 }`}
               >
                 <span className="text-xl">{m.emoji}</span>
-                <span className="mt-0.5 text-zinc-500">{m.label}</span>
+                <span className="mt-0.5 text-stone-500 dark:text-stone-400">{m.label}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Visibility */}
-        <label className="flex cursor-pointer items-center gap-3">
-          <div className="relative">
-            <input
-              type="checkbox"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              className="peer sr-only"
-            />
-            <div className="h-5 w-9 rounded-full bg-zinc-200 peer-checked:bg-indigo-600 dark:bg-zinc-700" />
-            <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
-          </div>
-          <div>
-            <span className="text-sm font-medium">Make this entry public</span>
-            <p className="text-xs text-zinc-400">Visible on your public profile</p>
-          </div>
-        </label>
+        <Toggle
+          checked={isPublic}
+          onChange={setIsPublic}
+          label="Make this entry public"
+          description="Visible on your public profile"
+        />
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <button
+        <Button
           type="submit"
           disabled={saving}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+          className="w-full"
+          size="lg"
+          icon={<FiSend className="h-4 w-4" />}
         >
-          <FiSend className="h-4 w-4" />
           {saving ? "Saving…" : isEditing ? "Save changes" : "Save entry"}
-        </button>
+        </Button>
       </form>
     </div>
   );

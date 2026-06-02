@@ -1,10 +1,15 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { StreakCalendar } from "@/components/StreakCalendar";
-import { AnalyticsCharts } from "@/components/AnalyticsCharts";
-import { calculateStreak } from "@/lib/utils";
+import { StreakCalendar } from "@/components/analytics/StreakCalendar";
+import { AnalyticsCharts } from "@/components/analytics/AnalyticsCharts";
+import { StatCard } from "@/components/analytics/StatCard";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Card } from "@/components/ui/Card";
+import { calculateStreak } from "@/lib/utils/streak";
+import { calculateTopTags, calculateWeeklyActivity } from "@/lib/utils/analytics";
 import { format } from "date-fns";
+import { LIMITS } from "@/lib/constants";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Analytics" };
@@ -19,61 +24,39 @@ export default async function AnalyticsPage() {
     orderBy: { date: "desc" },
   });
 
-  type EntryRow = (typeof entries)[number];
-
-  const streak = calculateStreak(entries.map((e: EntryRow) => new Date(e.date)));
+  const streak = calculateStreak(entries.map((e) => new Date(e.date)));
 
   const activityMap: Record<string, number> = {};
-  for (const e of entries as EntryRow[]) {
+  for (const e of entries) {
     const key = format(new Date(e.date), "yyyy-MM-dd");
     activityMap[key] = (activityMap[key] ?? 0) + 1;
   }
 
-  const tagCounts: Record<string, number> = {};
-  for (const e of entries as EntryRow[]) {
-    for (const et of e.tags) {
-      const name = (et as { tag: { name: string } }).tag.name;
-      tagCounts[name] = (tagCounts[name] ?? 0) + 1;
-    }
-  }
-  const topTags = Object.entries(tagCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([name, count]) => ({ name, count }));
+  const topTags = calculateTopTags(entries, LIMITS.TOP_TAGS);
+  const weeklyData = calculateWeeklyActivity(entries);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-2xl font-bold">Analytics</h1>
+      <PageHeader title="Analytics" />
 
-      <div className="mb-8 grid grid-cols-3 gap-4">
-        {[
-          { label: "Total entries", value: entries.length },
-          { label: "Current streak", value: `${streak} days` },
-          {
-            label: "Public entries",
-            value: (entries as EntryRow[]).filter((e) => e.isPublic).length,
-          },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {stat.value}
-            </p>
-            <p className="mt-0.5 text-xs text-zinc-500">{stat.label}</p>
-          </div>
-        ))}
+      <div className="animate-fade-in mb-8 grid grid-cols-3 gap-4">
+        <StatCard label="Total entries" value={entries.length} />
+        <StatCard label="Current streak" value={`${streak} days`} />
+        <StatCard label="Public entries" value={entries.filter((e) => e.isPublic).length} />
       </div>
 
-      <div className="mb-8 rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-4 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Activity
-        </h2>
-        <StreakCalendar activityMap={activityMap} />
+      <div className="animate-fade-in mb-8" style={{ animationDelay: "100ms" }}>
+        <Card padding="lg">
+          <h2 className="mb-4 text-sm font-semibold text-stone-700 dark:text-stone-300">
+            Activity
+          </h2>
+          <StreakCalendar activityMap={activityMap} />
+        </Card>
       </div>
 
-      <AnalyticsCharts topTags={topTags} entries={entries as EntryRow[]} />
+      <div className="animate-fade-in" style={{ animationDelay: "200ms" }}>
+        <AnalyticsCharts topTags={topTags} weeklyData={weeklyData} />
+      </div>
     </div>
   );
 }

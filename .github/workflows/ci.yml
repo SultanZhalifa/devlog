@@ -38,7 +38,7 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: "postgresql://user:pass@localhost:5432/devlog"
-          NEXTAUTH_SECRET: "ci-dummy-secret-32-chars-minimum-x"
-          NEXTAUTH_URL: "http://localhost:3000"
+          AUTH_SECRET: "ci-dummy-secret-32-chars-minimum-x"
+          AUTH_URL: "http://localhost:3000"
           GITHUB_ID: "dummy-id"
           GITHUB_SECRET: "dummy-secret"

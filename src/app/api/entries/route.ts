@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { validateTags } from "@/lib/api";
+import type { CreateEntryInput } from "@/types";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -33,14 +35,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { content, mood, isPublic, tags: tagNames, date } = body as {
-    content: string;
-    mood?: number;
-    isPublic?: boolean;
-    tags?: string[];
-    date?: string;
-  };
+  const body = (await request.json()) as CreateEntryInput;
+  const { content, mood, isPublic, tags: tagNames, date } = body;
 
   if (!content?.trim()) {
     return NextResponse.json({ error: "Content is required" }, { status: 400 });
@@ -49,6 +45,9 @@ export async function POST(request: NextRequest) {
   if (mood !== undefined && (mood < 1 || mood > 5)) {
     return NextResponse.json({ error: "Mood must be between 1 and 5" }, { status: 400 });
   }
+
+  const tagError = validateTags(tagNames);
+  if (tagError) return tagError;
 
   const tagConnections = tagNames?.length
     ? await Promise.all(

@@ -1,26 +1,171 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fffbf5;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --border: #e7e5e4;
+  --muted: #78716c;
+  --accent: #f59e0b;
+  --accent-light: #fef3c7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0c0a09;
+    --foreground: #fafaf9;
+    --card: #1c1917;
+    --border: #292524;
+    --muted: #a8a29e;
+    --accent: #f59e0b;
+    --accent-light: #451a03;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter, "Inter", system-ui, -apple-system, sans-serif);
+}
+
+/* ============================================
+   Warm Gradient Backgrounds
+   ============================================ */
+.warm-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(254, 243, 199, 0.25) 0%,
+    rgba(255, 237, 213, 0.15) 40%,
+    rgba(255, 228, 230, 0.08) 100%
+  );
+}
+
+.warm-gradient-dark {
+  background: linear-gradient(
+    135deg,
+    rgba(120, 53, 15, 0.08) 0%,
+    rgba(124, 45, 18, 0.05) 40%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* ============================================
+   Micro-Animations
+   ============================================ */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(245, 158, 11, 0.08);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out both;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Stagger children animations */
+.stagger-children > * {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: #44403c;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #57534e;
+  }
+}
+
+/* ============================================
+   Smooth Transitions (Global)
+   ============================================ */
+* {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(245, 158, 11, 0.2);
+  color: inherit;
 }

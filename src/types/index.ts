@@ -27,3 +27,18 @@ export type AnalyticsData = {
 
 // Re-export Prisma types for convenience
 export type { User, Entry, Tag, Follow };
+
+export type CreateEntryInput = {
+  content: string;
+  mood?: number;
+  isPublic?: boolean;
+  tags?: string[];
+  date?: string;
+};
+
+export type UpdateEntryInput = {
+  content?: string;
+  mood?: number | null;
+  isPublic?: boolean;
+  tags?: string[];
+};
