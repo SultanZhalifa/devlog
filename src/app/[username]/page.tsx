@@ -76,28 +76,34 @@ export default async function PublicProfilePage({ params }: Props) {
       {/* Profile header */}
       <div className="animate-fade-in mb-8 flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <UserAvatar
-            src={user.avatar}
-            name={user.name}
-            size="lg"
-          />
+          <UserAvatar src={user.avatar} name={user.name} size="lg" />
           <div>
-            <h1 className="text-xl font-bold text-stone-900 dark:text-stone-50">{user.name}</h1>
+            <h1 className="text-xl font-bold text-stone-900 dark:text-stone-50">
+              {user.name}
+            </h1>
             <p className="text-sm text-stone-500 dark:text-stone-400">@{user.username}</p>
             {user.bio && (
-              <p className="mt-1.5 text-sm text-stone-600 dark:text-stone-400">{user.bio}</p>
+              <p className="mt-1.5 text-sm text-stone-600 dark:text-stone-400">
+                {user.bio}
+              </p>
             )}
             <div className="mt-3 flex flex-wrap gap-4 text-sm">
               <span>
-                <strong className="text-stone-800 dark:text-stone-200">{user._count.entries}</strong>{" "}
+                <strong className="text-stone-800 dark:text-stone-200">
+                  {user._count.entries}
+                </strong>{" "}
                 <span className="text-stone-500 dark:text-stone-400">entries</span>
               </span>
               <span>
-                <strong className="text-stone-800 dark:text-stone-200">{user._count.followers}</strong>{" "}
+                <strong className="text-stone-800 dark:text-stone-200">
+                  {user._count.followers}
+                </strong>{" "}
                 <span className="text-stone-500 dark:text-stone-400">followers</span>
               </span>
               <span>
-                <strong className="text-stone-800 dark:text-stone-200">{user._count.following}</strong>{" "}
+                <strong className="text-stone-800 dark:text-stone-200">
+                  {user._count.following}
+                </strong>{" "}
                 <span className="text-stone-500 dark:text-stone-400">following</span>
               </span>
               <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
@@ -116,7 +122,10 @@ export default async function PublicProfilePage({ params }: Props) {
 
       {/* Top tags */}
       {topTags.length > 0 && (
-        <div className="animate-fade-in mb-6 flex flex-wrap gap-1.5" style={{ animationDelay: "100ms" }}>
+        <div
+          className="animate-fade-in mb-6 flex flex-wrap gap-1.5"
+          style={{ animationDelay: "100ms" }}
+        >
           {topTags.map((name) => (
             <TagBadge key={name} name={name} />
           ))}

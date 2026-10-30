@@ -34,7 +34,7 @@ export function TagBadge({ name, onClick, active, className }: TagBadgeProps) {
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-all duration-200",
         getColor(name),
         active
-          ? "ring-2 ring-offset-1 ring-amber-500 dark:ring-offset-stone-900"
+          ? "ring-2 ring-amber-500 ring-offset-1 dark:ring-offset-stone-900"
           : "opacity-90 hover:opacity-100",
         onClick ? "cursor-pointer" : "cursor-default",
         className,

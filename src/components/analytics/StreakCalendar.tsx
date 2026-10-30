@@ -41,9 +41,7 @@ export function StreakCalendar({ activityMap }: StreakCalendarProps) {
   const months = weeks
     .map((week, i) => {
       const firstDay = week.find((d) => d !== "");
-      return firstDay
-        ? { label: format(parseISO(firstDay), "MMM"), weekIndex: i }
-        : null;
+      return firstDay ? { label: format(parseISO(firstDay), "MMM"), weekIndex: i } : null;
     })
     .filter(Boolean)
     .filter((m, i, arr) => i === 0 || m!.label !== arr[i - 1]!.label);
@@ -52,9 +50,12 @@ export function StreakCalendar({ activityMap }: StreakCalendarProps) {
     <div className="overflow-x-auto">
       <div className="flex gap-1">
         {/* Day labels */}
-        <div className="flex flex-col gap-1 pr-1 pt-5">
+        <div className="flex flex-col gap-1 pt-5 pr-1">
           {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
-            <div key={i} className="h-3 w-6 text-[9px] leading-3 text-stone-400 dark:text-stone-500">
+            <div
+              key={i}
+              className="h-3 w-6 text-[9px] leading-3 text-stone-400 dark:text-stone-500"
+            >
               {d}
             </div>
           ))}
@@ -66,7 +67,10 @@ export function StreakCalendar({ activityMap }: StreakCalendarProps) {
             {weeks.map((_, i) => {
               const month = months.find((m) => m!.weekIndex === i);
               return (
-                <div key={i} className="h-4 w-3 text-[9px] text-stone-400 dark:text-stone-500">
+                <div
+                  key={i}
+                  className="h-4 w-3 text-[9px] text-stone-400 dark:text-stone-500"
+                >
                   {month?.label ?? ""}
                 </div>
               );
@@ -96,10 +100,7 @@ export function StreakCalendar({ activityMap }: StreakCalendarProps) {
       <div className="mt-2 flex items-center gap-1 text-[10px] text-stone-400 dark:text-stone-500">
         <span>Less</span>
         {[0, 1, 2, 3].map((level) => (
-          <div
-            key={level}
-            className={cn("h-3 w-3 rounded-sm", getIntensity(level))}
-          />
+          <div key={level} className={cn("h-3 w-3 rounded-sm", getIntensity(level))} />
         ))}
         <span>More</span>
       </div>

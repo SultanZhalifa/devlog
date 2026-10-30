@@ -53,12 +53,25 @@ export function AnalyticsCharts({ topTags, weeklyData }: Props) {
           Top tags
         </h2>
         {topTags.length === 0 ? (
-          <p className="text-sm text-stone-400">No tags yet. Add tags when writing entries.</p>
+          <p className="text-sm text-stone-400">
+            No tags yet. Add tags when writing entries.
+          </p>
         ) : (
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={topTags} layout="vertical">
-              <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} stroke="#a8a29e" />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={80} stroke="#a8a29e" />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tick={{ fontSize: 10 }}
+                stroke="#a8a29e"
+              />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tick={{ fontSize: 10 }}
+                width={80}
+                stroke="#a8a29e"
+              />
               <Tooltip
                 contentStyle={{
                   borderRadius: "12px",

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { validateTags } from "@/lib/api";
+import { readJson, validateEntryFields, validateTags } from "@/lib/api";
 import type { CreateEntryInput } from "@/types";
 
 export async function GET(request: NextRequest) {
@@ -35,16 +35,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json()) as CreateEntryInput;
-  const { content, mood, isPublic, tags: tagNames, date } = body;
-
-  if (!content?.trim()) {
-    return NextResponse.json({ error: "Content is required" }, { status: 400 });
-  }
-
-  if (mood !== undefined && (mood < 1 || mood > 5)) {
-    return NextResponse.json({ error: "Mood must be between 1 and 5" }, { status: 400 });
-  }
+  const raw = await readJson(request);
+  if (!raw) return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  const fieldError = validateEntryFields(raw, { requireContent: true });
+  if (fieldError) return fieldError;
+  const {
+    content,
+    mood,
+    isPublic,
+    tags: tagNames,
+    date,
+  } = raw as unknown as CreateEntryInput;
 
   const tagError = validateTags(tagNames);
   if (tagError) return tagError;

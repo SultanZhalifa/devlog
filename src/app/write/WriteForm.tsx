@@ -46,7 +46,11 @@ export function WriteForm({ initialData }: WriteFormProps) {
       .trim()
       .replace(/\s+/g, "-")
       .slice(0, CONTENT.TAG_MAX_LENGTH);
-    if (tag && !selectedTags.includes(tag) && selectedTags.length < CONTENT.TAG_MAX_COUNT) {
+    if (
+      tag &&
+      !selectedTags.includes(tag) &&
+      selectedTags.length < CONTENT.TAG_MAX_COUNT
+    ) {
       setSelectedTags((prev) => [...prev, tag]);
     }
     setCustomTag("");
@@ -81,7 +85,7 @@ export function WriteForm({ initialData }: WriteFormProps) {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <PageHeader title={isEditing ? "Edit entry" : "What did you learn today?"} />
 
-      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+      <form onSubmit={handleSubmit} className="animate-fade-in space-y-6">
         <div>
           <TextArea
             value={content}
@@ -94,7 +98,9 @@ export function WriteForm({ initialData }: WriteFormProps) {
 
         {/* Tags */}
         <div>
-          <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">Tags</p>
+          <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+            Tags
+          </p>
           <div className="mb-3 flex flex-wrap gap-2">
             {SUGGESTED_TAGS.map((tag) => (
               <TagBadge
@@ -105,17 +111,19 @@ export function WriteForm({ initialData }: WriteFormProps) {
               />
             ))}
           </div>
-          {selectedTags.filter((t) => !(SUGGESTED_TAGS as readonly string[]).includes(t)).map((tag) => (
-            <span
-              key={tag}
-              className="mr-2 mb-2 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
-            >
-              #{tag}
-              <button type="button" onClick={() => toggleTag(tag)}>
-                <FiX className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
+          {selectedTags
+            .filter((t) => !(SUGGESTED_TAGS as readonly string[]).includes(t))
+            .map((tag) => (
+              <span
+                key={tag}
+                className="mr-2 mb-2 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+              >
+                #{tag}
+                <button type="button" onClick={() => toggleTag(tag)}>
+                  <FiX className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
           <div className="flex gap-2">
             <input
               value={customTag}
@@ -123,7 +131,7 @@ export function WriteForm({ initialData }: WriteFormProps) {
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomTag())}
               placeholder="Add custom tag…"
               maxLength={CONTENT.TAG_MAX_LENGTH}
-              className="flex-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm transition-all duration-200 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200/50 dark:border-stone-700 dark:bg-stone-900 dark:focus:border-amber-500 dark:focus:ring-amber-800/30"
+              className="flex-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:focus:border-amber-500 dark:focus:ring-amber-800/30"
             />
             <Button
               type="button"
@@ -136,13 +144,17 @@ export function WriteForm({ initialData }: WriteFormProps) {
             </Button>
           </div>
           {selectedTags.length >= CONTENT.TAG_MAX_COUNT && (
-            <p className="mt-1 text-xs text-stone-400">Maximum {CONTENT.TAG_MAX_COUNT} tags</p>
+            <p className="mt-1 text-xs text-stone-400">
+              Maximum {CONTENT.TAG_MAX_COUNT} tags
+            </p>
           )}
         </div>
 
         {/* Mood */}
         <div>
-          <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">How did it feel?</p>
+          <p className="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+            How did it feel?
+          </p>
           <div className="flex gap-2">
             {MOOD_OPTIONS.map((m) => (
               <button
@@ -156,7 +168,9 @@ export function WriteForm({ initialData }: WriteFormProps) {
                 }`}
               >
                 <span className="text-xl">{m.emoji}</span>
-                <span className="mt-0.5 text-stone-500 dark:text-stone-400">{m.label}</span>
+                <span className="mt-0.5 text-stone-500 dark:text-stone-400">
+                  {m.label}
+                </span>
               </button>
             ))}
           </div>

@@ -35,7 +35,8 @@ export function EntryCard({
   const [deleting, setDeleting] = useState(false);
 
   const limit = compact ? CONTENT.ENTRY_PREVIEW_COMPACT : CONTENT.ENTRY_PREVIEW_FULL;
-  const preview = entry.content.slice(0, limit) + (entry.content.length > limit ? "…" : "");
+  const preview =
+    entry.content.slice(0, limit) + (entry.content.length > limit ? "…" : "");
 
   async function handleDelete() {
     if (!confirm("Delete this entry? This cannot be undone.")) return;
@@ -49,19 +50,15 @@ export function EntryCard({
   }
 
   return (
-    <article className="group rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:shadow-amber-100/30 hover:border-stone-300/80 dark:border-stone-800 dark:bg-stone-900 dark:hover:shadow-amber-900/10 dark:hover:border-stone-700">
+    <article className="group rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:border-stone-300/80 hover:shadow-md hover:shadow-amber-100/30 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700 dark:hover:shadow-amber-900/10">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {showUser && (
             <Link
               href={`/${entry.user.username}`}
               className="mb-3 flex items-center gap-2 transition-opacity hover:opacity-80"
             >
-              <UserAvatar
-                src={entry.user.avatar}
-                name={entry.user.name}
-                size="sm"
-              />
+              <UserAvatar src={entry.user.avatar} name={entry.user.name} size="sm" />
               <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
                 {entry.user.name}
               </span>
@@ -69,7 +66,7 @@ export function EntryCard({
             </Link>
           )}
 
-          <p className="text-sm leading-relaxed text-stone-700 dark:text-stone-300 whitespace-pre-wrap">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap text-stone-700 dark:text-stone-300">
             {preview}
           </p>
 

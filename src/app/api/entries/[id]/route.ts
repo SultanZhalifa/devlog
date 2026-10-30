@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { validateTags } from "@/lib/api";
+import { readJson, validateEntryFields, validateTags } from "@/lib/api";
 import type { UpdateEntryInput } from "@/types";
 
 type Params = Promise<{ id: string }>;
@@ -39,8 +39,11 @@ export async function PUT(request: NextRequest, { params }: { params: Params }) 
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = (await request.json()) as UpdateEntryInput;
-  const { content, mood, isPublic, tags: tagNames } = body;
+  const raw = await readJson(request);
+  if (!raw) return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  const fieldError = validateEntryFields(raw, { requireContent: false });
+  if (fieldError) return fieldError;
+  const { content, mood, isPublic, tags: tagNames } = raw as unknown as UpdateEntryInput;
 
   const tagError = validateTags(tagNames);
   if (tagError) return tagError;

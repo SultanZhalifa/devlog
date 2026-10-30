@@ -12,14 +12,16 @@ export default async function LoginPage() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
       {/* Warm gradient background */}
-      <div className="pointer-events-none fixed inset-0 -z-10 warm-gradient dark:warm-gradient-dark" />
+      <div className="warm-gradient dark:warm-gradient-dark pointer-events-none fixed inset-0 -z-10" />
 
       <div className="animate-scale-in w-full max-w-sm rounded-2xl border border-stone-200/80 bg-white/90 p-8 shadow-lg shadow-amber-100/20 backdrop-blur-sm dark:border-stone-800 dark:bg-stone-900/90 dark:shadow-amber-900/10">
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-200/40 dark:shadow-amber-900/20">
             <FiZap className="h-6 w-6" />
           </div>
-          <h1 className="text-xl font-bold text-stone-900 dark:text-stone-50">Sign in to DevLog</h1>
+          <h1 className="text-xl font-bold text-stone-900 dark:text-stone-50">
+            Sign in to DevLog
+          </h1>
           <p className="text-sm text-stone-500 dark:text-stone-400">
             One click with your GitHub account
           </p>

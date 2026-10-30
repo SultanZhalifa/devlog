@@ -20,10 +20,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
-      <PageHeader
-        title="Settings"
-        subtitle="Manage your profile and preferences."
-      />
+      <PageHeader title="Settings" subtitle="Manage your profile and preferences." />
       <SettingsForm
         initialBio={user.bio ?? ""}
         initialIsPublic={user.isPublic}

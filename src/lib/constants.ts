@@ -14,6 +14,7 @@ export const CONTENT = {
   TAG_MAX_LENGTH: 30,
   TAG_MAX_COUNT: 10,
   BIO_MAX_LENGTH: 300,
+  ENTRY_MAX_LENGTH: 10000,
 } as const;
 
 export const SUGGESTED_TAGS = [
