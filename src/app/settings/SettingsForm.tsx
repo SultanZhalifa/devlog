@@ -15,11 +15,7 @@ interface SettingsFormProps {
   username: string;
 }
 
-export function SettingsForm({
-  initialBio,
-  initialIsPublic,
-  username,
-}: SettingsFormProps) {
+export function SettingsForm({ initialBio, initialIsPublic, username }: SettingsFormProps) {
   const router = useRouter();
   const [bio, setBio] = useState(initialBio);
   const [isPublic, setIsPublic] = useState(initialIsPublic);
@@ -50,7 +46,7 @@ export function SettingsForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="animate-fade-in space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       {/* Bio */}
       <div>
         <TextArea
@@ -78,11 +74,10 @@ export function SettingsForm({
 
       {/* Profile link */}
       <Card padding="md">
-        <p className="text-sm font-medium text-stone-700 dark:text-stone-300">
-          Your profile URL
-        </p>
+        <p className="text-sm font-medium text-stone-700 dark:text-stone-300">Your profile URL</p>
         <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
-          {typeof window !== "undefined" ? window.location.host : ""}/{username}
+          {typeof window !== "undefined" ? window.location.host : ""}
+          /{username}
         </p>
       </Card>
 
@@ -91,7 +86,13 @@ export function SettingsForm({
       <Button
         type="submit"
         disabled={saving}
-        icon={saved ? <FiCheck className="h-4 w-4" /> : <FiSave className="h-4 w-4" />}
+        icon={
+          saved ? (
+            <FiCheck className="h-4 w-4" />
+          ) : (
+            <FiSave className="h-4 w-4" />
+          )
+        }
       >
         {saved ? "Saved!" : saving ? "Saving…" : "Save changes"}
       </Button>

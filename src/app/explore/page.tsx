@@ -60,7 +60,7 @@ export default async function ExplorePage() {
           />
         </div>
 
-        <aside className="animate-fade-in space-y-6" style={{ animationDelay: "100ms" }}>
+        <aside className="space-y-6 animate-fade-in" style={{ animationDelay: "100ms" }}>
           <Card padding="md">
             <h2 className="mb-3 text-sm font-semibold text-stone-700 dark:text-stone-300">
               Trending tags
@@ -84,7 +84,11 @@ export default async function ExplorePage() {
                     href={`/${user.username}`}
                     className="flex items-center gap-3 transition-opacity hover:opacity-80"
                   >
-                    <UserAvatar src={user.avatar} name={user.name} size="md" />
+                    <UserAvatar
+                      src={user.avatar}
+                      name={user.name}
+                      size="md"
+                    />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-stone-800 dark:text-stone-200">
                         {user.name}

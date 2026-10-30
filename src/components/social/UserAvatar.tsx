@@ -27,7 +27,12 @@ const iconSizes = {
   lg: "h-8 w-8",
 };
 
-export function UserAvatar({ src, name, size = "md", className }: UserAvatarProps) {
+export function UserAvatar({
+  src,
+  name,
+  size = "md",
+  className,
+}: UserAvatarProps) {
   if (src) {
     return (
       <Image

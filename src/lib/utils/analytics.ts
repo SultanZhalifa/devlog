@@ -10,7 +10,8 @@ export function calculateTopTags(
 ): { name: string; count: number }[] {
   const counts: Record<string, number> = {};
   for (const e of entries)
-    for (const et of e.tags) counts[et.tag.name] = (counts[et.tag.name] ?? 0) + 1;
+    for (const et of e.tags)
+      counts[et.tag.name] = (counts[et.tag.name] ?? 0) + 1;
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)

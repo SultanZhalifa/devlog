@@ -32,7 +32,9 @@ export default async function DashboardPage() {
 
   const streak = calculateStreak(entries.map((e) => new Date(e.date)));
   const today = new Date().toDateString();
-  const hasEntryToday = entries.some((e) => new Date(e.date).toDateString() === today);
+  const hasEntryToday = entries.some(
+    (e) => new Date(e.date).toDateString() === today,
+  );
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -42,20 +44,12 @@ export default async function DashboardPage() {
         actions={
           <>
             <Link href="/analytics">
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={<FiBarChart2 className="h-4 w-4" />}
-              >
+              <Button variant="secondary" size="sm" icon={<FiBarChart2 className="h-4 w-4" />}>
                 Analytics
               </Button>
             </Link>
             <Link href="/write">
-              <Button
-                variant="primary"
-                size="sm"
-                icon={<FiPlusSquare className="h-4 w-4" />}
-              >
+              <Button variant="primary" size="sm" icon={<FiPlusSquare className="h-4 w-4" />}>
                 {hasEntryToday ? "Add another" : "Log today"}
               </Button>
             </Link>

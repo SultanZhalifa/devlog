@@ -18,7 +18,9 @@ const mockEntry: EntryWithTags = {
   isPublic: true,
   createdAt: new Date("2025-05-21T10:00:00Z"),
   updatedAt: new Date("2025-05-21T10:00:00Z"),
-  tags: [{ tag: { id: "tag-1", name: "typescript" } }],
+  tags: [
+    { tag: { id: "tag-1", name: "typescript" } },
+  ],
   user: {
     id: "user-1",
     username: "sultan",

@@ -25,7 +25,7 @@ export function Card({
       className={cn(
         "rounded-2xl border border-stone-200/80 bg-white shadow-sm transition-all duration-200 dark:border-stone-800 dark:bg-stone-900",
         hover &&
-          "hover:border-stone-300/80 hover:shadow-md hover:shadow-amber-100/30 dark:hover:border-stone-700 dark:hover:shadow-amber-900/10",
+          "hover:shadow-md hover:shadow-amber-100/30 hover:border-stone-300/80 dark:hover:shadow-amber-900/10 dark:hover:border-stone-700",
         paddingStyles[padding],
         className,
       )}

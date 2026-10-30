@@ -42,10 +42,7 @@ export default async function AnalyticsPage() {
       <div className="animate-fade-in mb-8 grid grid-cols-3 gap-4">
         <StatCard label="Total entries" value={entries.length} />
         <StatCard label="Current streak" value={`${streak} days`} />
-        <StatCard
-          label="Public entries"
-          value={entries.filter((e) => e.isPublic).length}
-        />
+        <StatCard label="Public entries" value={entries.filter((e) => e.isPublic).length} />
       </div>
 
       <div className="animate-fade-in mb-8" style={{ animationDelay: "100ms" }}>
